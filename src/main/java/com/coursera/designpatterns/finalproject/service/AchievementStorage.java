@@ -13,5 +13,5 @@ public interface AchievementStorage {
 
     void addObserver(AchievementObserver observer);
 
-    List<AchievementObserver> getOververs();
+    List<AchievementObserver> getObservers();
 }

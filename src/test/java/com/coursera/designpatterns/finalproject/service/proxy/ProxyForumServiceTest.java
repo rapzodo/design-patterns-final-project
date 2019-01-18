@@ -131,7 +131,7 @@ public class ProxyForumServiceTest {
         if(achievements != null){
             achievements.clear();
         }
-        List<AchievementObserver> oververs = AchievementStorageFactory.getInstance().getOververs();
+        List<AchievementObserver> oververs = AchievementStorageFactory.getInstance().getObservers();
         if(oververs != null){
             oververs.clear();
         }
