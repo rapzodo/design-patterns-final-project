@@ -37,8 +37,8 @@ public class ProxyForumServiceTest {
         AchievementStorageFactory.setAchievementStorage(InMemoryAchievementStorage.INSTANCE);
         AchievementStorage achievementStorage = AchievementStorageFactory.getInstance();
         proxyForumService = new ProxyForumService(mockRemoteService, achievementStorage);
-        achievementStorage.addObserver(new CreationAchievementObserver(achievementStorage));
-        achievementStorage.addObserver(new ParticipationAchievementObserver(achievementStorage));
+        achievementStorage.addObserver(new CreationAchievementObserver());
+        achievementStorage.addObserver(new ParticipationAchievementObserver());
     }
 
     @Test
