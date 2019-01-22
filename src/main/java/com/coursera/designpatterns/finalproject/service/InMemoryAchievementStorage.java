@@ -16,22 +16,19 @@ public enum InMemoryAchievementStorage implements AchievementStorage {
     @Override
     public void addAchievement(String user, Achievement achievement) {
         if(userAchievementsMap.containsKey(user)) {
-            Achievement merge = mergeAchievements(user, achievement);
-            observers.forEach(observer -> observer.achievementUpdate(user,merge));
+           mergeAchievements(user, achievement);
         }else{
             userAchievementsMap.put(user,Stream.of(achievement).collect(Collectors.toList()));
-            observers.forEach(observer -> observer.achievementUpdate(user,achievement));
         }
     }
 
-    private Achievement mergeAchievements(String user, Achievement achievement) {
+    private void mergeAchievements(String user, Achievement achievement) {
         List<Achievement> achievements = getAchievements(user);
         Optional<Achievement> first = findPreviousAchievement(achievement.getName(), achievements);
         if(first.isPresent()){
-            return updateAchievement(achievement, achievements, first);
+            updateAchievement(achievement, achievements, first);
         }else{
             achievements.add(achievement);
-            return achievement;
         }
     }
 
@@ -47,16 +44,6 @@ public enum InMemoryAchievementStorage implements AchievementStorage {
         return achievements.stream()
                     .filter(a -> a.getName().equals(achievementName))
                     .findFirst();
-    }
-
-    @Override
-    public void addObserver(AchievementObserver observer){
-        observers.add(observer);
-    }
-
-    @Override
-    public List<AchievementObserver> getObservers() {
-        return observers;
     }
 
     @Override

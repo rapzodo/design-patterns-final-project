@@ -4,7 +4,6 @@ import com.coursera.designpatterns.finalproject.domain.Achievement;
 import com.coursera.designpatterns.finalproject.domain.AchievementStorageFactory;
 import com.coursera.designpatterns.finalproject.domain.Badge;
 import com.coursera.designpatterns.finalproject.domain.Points;
-import com.coursera.designpatterns.finalproject.observers.AchievementObserver;
 import com.coursera.designpatterns.finalproject.observers.CreationAchievementObserver;
 import com.coursera.designpatterns.finalproject.observers.ParticipationAchievementObserver;
 import com.coursera.designpatterns.finalproject.service.AchievementStorage;
@@ -15,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,9 +36,8 @@ public class ProxyForumServiceTest {
         mockRemoteService = Mockito.mock(ForumService.class);
         AchievementStorageFactory.setAchievementStorage(InMemoryAchievementStorage.INSTANCE);
         AchievementStorage achievementStorage = AchievementStorageFactory.getInstance();
-        proxyForumService = new ProxyForumService(mockRemoteService, achievementStorage);
-        achievementStorage.addObserver(new CreationAchievementObserver());
-        achievementStorage.addObserver(new ParticipationAchievementObserver());
+        proxyForumService = new ProxyForumService(mockRemoteService, achievementStorage,
+                Arrays.asList(new CreationAchievementObserver(), new ParticipationAchievementObserver()));
     }
 
     @Test
@@ -111,16 +110,29 @@ public class ProxyForumServiceTest {
     }
 
     @Test
-    public void shouldReceiveInventorBadgeWhenExceeds_100_CreationPoints(){
+    public void shouldReceiveInventorBadgeWhenExceeds_100_CreationPointsAddingTopic(){
         IntStream.rangeClosed(1,21).forEach(value -> proxyForumService.addTopic(user,"topic " + value));
+        List<Achievement> achievements = AchievementStorageFactory.getInstance().getAchievements(user);
+        assertThat(achievements).contains(new Badge(INVENTOR));
+    }@Test
+    public void shouldReceiveInventorBadgeWhenExceeds_100_CreationPointsLikingTopic(){
+        IntStream.rangeClosed(1,101).forEach(value -> proxyForumService.likeTopic(user,"topic " + value,"liking a topic"));
         List<Achievement> achievements = AchievementStorageFactory.getInstance().getAchievements(user);
         assertThat(achievements).contains(new Badge(INVENTOR));
     }
 
     @Test
-    public void shouldReceivePartOfCommunityBadgeWhenExceeds_100_ParticipationPoints() {
+    public void shouldReceivePartOfCommunityBadgeWhenExceeds_100_ParticipationPointsAddingComments() {
         IntStream.rangeClosed(1, 40).forEach(value -> proxyForumService.addComment(user, "topic " + value,
                 "this is the " + value+ "th comment"));
+        List<Achievement> achievements = AchievementStorageFactory.getInstance().getAchievements(user);
+        assertThat(achievements).contains(new Badge(PART_OF_THE_COMMUNITY));
+    }
+
+    @Test
+    public void shouldReceivePartOfCommunityBadgeWhenExceeds_100_ParticipationPointsLikingComments() {
+        IntStream.rangeClosed(1, 101).forEach(value -> proxyForumService.likeComment(user, "topic " + value,
+                "this is the " + value + "th comment","liking any user comment"));
         List<Achievement> achievements = AchievementStorageFactory.getInstance().getAchievements(user);
         assertThat(achievements).contains(new Badge(PART_OF_THE_COMMUNITY));
     }
@@ -130,10 +142,6 @@ public class ProxyForumServiceTest {
         List<Achievement> achievements = AchievementStorageFactory.getInstance().getAchievements(user);
         if(achievements != null){
             achievements.clear();
-        }
-        List<AchievementObserver> oververs = AchievementStorageFactory.getInstance().getObservers();
-        if(oververs != null){
-            oververs.clear();
         }
     }
 }
