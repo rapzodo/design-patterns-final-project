@@ -1,9 +1,11 @@
 package com.coursera.designpatterns.finalproject.service;
 
 import com.coursera.designpatterns.finalproject.domain.Achievement;
-import com.coursera.designpatterns.finalproject.observers.AchievementObserver;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -11,7 +13,6 @@ public enum InMemoryAchievementStorage implements AchievementStorage {
 
     INSTANCE;
     private Map<String, List<Achievement>> userAchievementsMap = new HashMap<>();
-    private List<AchievementObserver> observers = new ArrayList<>();
 
     @Override
     public void addAchievement(String user, Achievement achievement) {
@@ -26,18 +27,16 @@ public enum InMemoryAchievementStorage implements AchievementStorage {
         List<Achievement> achievements = getAchievements(user);
         Optional<Achievement> first = findPreviousAchievement(achievement.getName(), achievements);
         if(first.isPresent()){
-            updateAchievement(achievement, achievements, first);
+            updateAchievement(achievement, achievements, first.get());
         }else{
             achievements.add(achievement);
         }
     }
 
-    private Achievement updateAchievement(Achievement achievement, List<Achievement> achievements, Optional<Achievement> first) {
-        Achievement previousPoints = first.get();
+    private void updateAchievement(Achievement achievement, List<Achievement> achievements, Achievement previousPoints) {
         Achievement updatedAchievement = achievement.merge(previousPoints);
         achievements.remove(previousPoints);
         achievements.add(updatedAchievement);
-        return updatedAchievement;
     }
 
     private Optional<Achievement> findPreviousAchievement(String achievementName, List<Achievement> achievements) {
