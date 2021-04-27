@@ -1,4 +1,4 @@
-# design-patterns-final-project
+# Design-patterns-final-project
 
 Instruções passo a passo da tarefaless 
 Representação das conquistas
